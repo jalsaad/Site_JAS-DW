@@ -362,6 +362,15 @@ ul { margin: 0 0 var(--s3); padding-left: 20px; }
 .media-hero { min-height: 380px; }
 .media-block { min-height: 280px; }
 
+/* Illustration vectorielle en ligne : elle remplace le motif hexagonal.
+   Dessinée, pas photographiée — voir la légende de chaque bloc. */
+.media-illus {
+  display: block; min-height: 0;
+  background-image: none; background-color: var(--ink-2);
+}
+.media-illus svg { display: block; width: 100%; height: auto; }
+.media-illus figcaption { border-top: 1px solid var(--line); }
+
 /* ── Formulaire ────────────────────────────────────────────────────── */
 
 .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s12); align-items: start; }
