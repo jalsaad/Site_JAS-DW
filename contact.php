@@ -110,7 +110,7 @@ function page_reponse(bool $succes, string $message): never {
       <a href="mentions-legales.html">Mentions légales</a>
     </nav>
   </div>
-  <p class="footer-legal">© <span id="year">2026</span> JAS Digital Works — Tournai, Belgique.</p>
+  <p class="footer-legal">© <span id="year">2026</span> JAS Digital Works — Frasnes-lez-Anvaing, Belgique.</p>
 </footer>
 
 <script src="assets/site.js"></script>

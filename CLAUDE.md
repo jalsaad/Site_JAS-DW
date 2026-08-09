@@ -1,6 +1,6 @@
 # JAS Digital Works — site vitrine
 
-Site statique de JAS Digital Works (agence digitale, Tournai), qui commercialise
+Site statique de JAS Digital Works (agence digitale, Frasnes-lez-Anvaing), qui commercialise
 des sites web clé en main auprès des établissements scolaires belges (FWB/WBE).
 
 ## Ce qu'est ce site — et ce qu'il n'est pas
