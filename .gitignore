@@ -1,0 +1,15 @@
+# Rien à builder ici : le dépôt est exactement ce qui part en FTP,
+# à l'exception de design/ et des deux fichiers Markdown.
+
+.DS_Store
+Thumbs.db
+*.swp
+*~
+
+# Captures de contrôle
+/screenshots/
+
+# Jamais d'identifiants dans le dépôt.
+.env
+*.ftp
+ftp-*.txt

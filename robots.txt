@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /mentions-legales
+Disallow: /mentions-legales.html
+Disallow: /contact.php
+
+Sitemap: https://jas-dw.be/sitemap.xml

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contact — JAS Digital Works</title>
+<meta name="description" content="Parlons du site de votre établissement. Réponse sous 24 h ouvrées, démonstration gratuite et sans engagement.">
+<link rel="canonical" href="https://jas-dw.be/contact">
+<link rel="icon" type="image/png" href="assets/mark.png">
+<meta name="theme-color" content="#07070A">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="fr_BE">
+<meta property="og:title" content="Contact — JAS Digital Works">
+<meta property="og:description" content="Démonstration gratuite et sans engagement pour les écoles belges.">
+<meta property="og:url" content="https://jas-dw.be/contact">
+<meta property="og:image" content="https://jas-dw.be/assets/logo.png">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+
+<a class="skip" href="#main">Aller au contenu</a>
+
+<header class="site-header">
+  <nav class="nav" aria-label="Navigation principale">
+    <a class="nav-logo" href="index.html" aria-label="JAS Digital Works — accueil">
+      <img src="assets/logo-inverse.png" alt="JAS Digital Works" width="480" height="94">
+    </a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-links" aria-label="Ouvrir le menu"><span></span></button>
+    <div class="nav-links" id="nav-links">
+      <a href="index.html">Accueil</a>
+      <a href="tarifs.html">Offres</a>
+      <a href="fonctionnalites.html">Fonctionnalités</a>
+      <a href="contact.html" aria-current="page">Contact</a>
+      <a class="btn btn-primary" href="contact.html">Demander une démo</a>
+    </div>
+  </nav>
+</header>
+
+<main id="main">
+
+  <section class="section">
+    <div class="wrap contact-grid">
+
+      <div>
+        <p class="kicker"><i></i> Contact</p>
+        <h1>Parlons de votre<br><span class="grad">établissement</span>.</h1>
+        <p class="lead" style="margin-top:var(--s8)">Réponse sous 24&nbsp;h ouvrées. Démonstration gratuite et sans engagement — nous venons avec une maquette de votre école.</p>
+
+        <hr class="rule" style="margin: var(--s10) 0; max-width:420px">
+
+        <div class="contact-details">
+          <!-- TODO avant mise en ligne : reprendre le numéro réel du site actuel,
+               puis rétablir la ligne ci-dessous.
+          <div><strong>Téléphone</strong> &nbsp;<a href="tel:+32XXXXXXXXX">+32 XXX XX XX XX</a></div>
+          -->
+          <div><strong>E-mail</strong> &nbsp;<a href="mailto:contact@jas-dw.be">contact@jas-dw.be</a></div>
+          <div><strong>Adresse</strong> &nbsp;Tournai, Belgique</div>
+          <div class="text-muted" style="margin-top:var(--s2)">Du lundi au vendredi.</div>
+        </div>
+      </div>
+
+      <form class="form" id="contact-form" action="contact.php" method="post">
+        <p style="position:absolute; left:-9999px" aria-hidden="true">
+          <label>Ne pas remplir <input type="text" name="site_web" tabindex="-1" autocomplete="off"></label>
+        </p>
+
+        <div class="field">
+          <label for="etablissement">Nom de l'établissement</label>
+          <input class="input" id="etablissement" name="etablissement" type="text" placeholder="Ex. Institut Sainte-Marie" autocomplete="organization" required>
+        </div>
+
+        <div class="field">
+          <label for="nom">Nom et fonction</label>
+          <input class="input" id="nom" name="nom" type="text" placeholder="Ex. Direction, Secrétariat…" autocomplete="name" required>
+        </div>
+
+        <div class="field">
+          <label for="email">E-mail</label>
+          <input class="input" id="email" name="email" type="email" placeholder="vous@etablissement.be" autocomplete="email" required>
+        </div>
+
+        <fieldset class="field" style="border:0; padding:0; margin:0">
+          <legend>Formule qui vous intéresse</legend>
+          <div class="seg">
+            <label class="seg-opt">
+              <input type="radio" name="pack" value="Essentiel — 199 € + 49 €/mois" checked>
+              <span>Essentiel</span><small>199 € + 49 €/mois</small>
+            </label>
+            <label class="seg-opt">
+              <input type="radio" name="pack" value="Interactif — 399 € + 99 €/mois">
+              <span>Interactif</span><small>399 € + 99 €/mois</small>
+            </label>
+            <label class="seg-opt">
+              <input type="radio" name="pack" value="Intégral — 799 € + 199 €/mois">
+              <span>Intégral</span><small>799 € + 199 €/mois</small>
+            </label>
+          </div>
+        </fieldset>
+
+        <div class="field">
+          <label for="message">Message</label>
+          <textarea class="input" id="message" name="message" placeholder="Votre besoin en quelques mots…"></textarea>
+        </div>
+
+        <button class="btn btn-primary" type="submit">Envoyer la demande</button>
+        <p class="form-status" id="form-status" role="status" aria-live="polite"></p>
+      </form>
+
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <a href="index.html" aria-label="JAS Digital Works — accueil">
+      <img src="assets/logo-inverse.png" alt="JAS Digital Works" width="480" height="94">
+    </a>
+    <nav class="footer-links" aria-label="Liens de pied de page">
+      <a href="tarifs.html">Offres</a>
+      <a href="fonctionnalites.html">Fonctionnalités</a>
+      <a href="contact.html">Contact</a>
+      <a href="mentions-legales.html">Mentions légales</a>
+    </nav>
+  </div>
+  <p class="footer-legal">© <span id="year">2026</span> JAS Digital Works — Tournai, Belgique.</p>
+</footer>
+
+<script src="assets/site.js"></script>
+</body>
+</html>
