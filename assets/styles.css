@@ -333,6 +333,21 @@ ul { margin: 0 0 var(--s3); padding-left: 20px; }
 .pack-list li { display: flex; gap: 11px; }
 .pack-list li::before { content: "→"; color: var(--violet-lo); flex: none; }
 .pack .btn { margin-top: var(--s2); }
+/* `vertical-align: super` décolle trop le renvoi du texte : on le place
+   à la main, et `line-height: 0` l'empêche d'élargir la ligne. */
+.pack sup, .price-notes sup {
+  font-size: .68em; line-height: 0;
+  vertical-align: baseline; position: relative; top: -.42em;
+  color: var(--violet-lo); margin-left: 1px;
+}
+
+/* Renvois de tarification, sous la grille des formules */
+.price-notes {
+  display: flex; flex-direction: column; gap: 6px;
+  margin: var(--s8) 0 0; max-width: 78ch;
+  font-size: 13px; color: var(--muted);
+}
+.price-notes b { color: var(--paper); font-weight: 600; }
 
 /* ── Blocs alternés (Fonctionnalités) ──────────────────────────────── */
 
