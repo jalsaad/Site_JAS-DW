@@ -89,6 +89,7 @@ function page_reponse(bool $succes, string $message): never {
       <a href="index.html">Accueil</a>
       <a href="tarifs.html">Offres</a>
       <a href="fonctionnalites.html">Fonctionnalités</a>
+      <a href="projets.html">Nos projets</a>
       <a href="contact.html">Contact</a>
       <a class="btn btn-primary" href="contact.html">Demander une démo</a>
     </div>
@@ -115,6 +116,7 @@ function page_reponse(bool $succes, string $message): never {
     <nav class="footer-links" aria-label="Liens de pied de page">
       <a href="tarifs.html">Offres</a>
       <a href="fonctionnalites.html">Fonctionnalités</a>
+      <a href="projets.html">Nos projets</a>
       <a href="contact.html">Contact</a>
       <a href="mentions-legales.html">Mentions légales</a>
     </nav>

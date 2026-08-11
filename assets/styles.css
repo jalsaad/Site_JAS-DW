@@ -349,6 +349,44 @@ ul { margin: 0 0 var(--s3); padding-left: 20px; }
 }
 .price-notes b { color: var(--paper); font-weight: 600; }
 
+/* ── Frise des projets ─────────────────────────────────────────────────
+   Rail vertical à gauche, un jalon par projet. L'ordre du HTML fait foi :
+   du plus récent au plus ancien. */
+
+.timeline { position: relative; margin: 0; padding: 0; list-style: none; }
+.timeline::before {
+  content: ""; position: absolute; left: 7px; top: 10px; bottom: 10px; width: 1px;
+  background: linear-gradient(180deg, var(--violet), var(--cyan) 60%, transparent);
+}
+.tl-item { position: relative; padding: 0 0 var(--s12) 46px; }
+.tl-item:last-child { padding-bottom: 0; }
+.tl-item::before {
+  content: ""; position: absolute; left: 0; top: 7px;
+  width: 15px; height: 15px; border-radius: 50%;
+  background: var(--ink); border: 2px solid var(--line-2);
+  transition: border-color .25s ease, box-shadow .25s ease;
+}
+.tl-item:hover::before, .tl-item:focus-within::before {
+  border-color: var(--violet-lo);
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--violet) 18%, transparent);
+}
+.tl-head { display: flex; align-items: center; gap: var(--s3); flex-wrap: wrap; margin-bottom: var(--s3); }
+.tl-lieu { font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.tl-item h3 { margin: 0 0 var(--s3); font-size: clamp(20px, 2.3vw, 27px); }
+.tl-item p { margin: 0; color: var(--muted); max-width: 62ch; }
+
+/* Emplacements prêts pour l'image et le lien de chaque projet. */
+.tl-media { margin: var(--s6) 0 0; max-width: 640px; }
+.tl-media img { width: 100%; height: auto; border-radius: 16px; border: 1px solid var(--line); }
+.tl-link {
+  display: inline-flex; align-items: center; gap: 8px; margin-top: var(--s4);
+  font-size: 14px; font-weight: 700; color: var(--violet-lo); text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--violet-lo) 40%, transparent);
+  padding-bottom: 2px; transition: color .2s ease, border-color .2s ease;
+}
+.tl-link:hover { color: var(--cyan); border-bottom-color: var(--cyan); }
+.tl-link::after { content: "↗"; font-size: 15px; }
+
 /* ── Blocs alternés (Fonctionnalités) ──────────────────────────────── */
 
 .feature { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s12); align-items: center; }
@@ -577,3 +615,12 @@ textarea.input { min-height: 120px; resize: vertical; }
   body { background: #fff; color: #000; }
   .prose, .card, .pack { border-color: #ccc; background: #fff; }
 }
+
+/* Logo partenaire dans la frise : lettrage foncé, il lui faut une
+   pastille claire pour rester lisible sur le fond du site. */
+.tl-logo {
+  display: inline-flex; align-items: center; margin: var(--s6) 0 0;
+  background: var(--paper); border-radius: 14px; padding: 14px 20px;
+}
+.tl-logo img { display: block; height: 46px; width: auto; }
+.tl-logo figcaption { font-size: 0; }
