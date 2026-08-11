@@ -72,15 +72,17 @@ Traité par `contact.php`, sur le serveur, sans service tiers : les données des
 prospects ne quittent pas l'infrastructure OVH. C'est cohérent avec l'argument
 RGPD vendu aux établissements.
 
-```php
-const DESTINATAIRE = 'contact@jas-dw.be';   // où arrivent les demandes
-const EXPEDITEUR   = 'contact@jas-dw.be';   // doit appartenir au domaine hébergé
+L'envoi se fait en deux temps : **SMTP authentifié chez Google** d'abord, avec
+PHPMailer ; **repli sur `mail()`** si le SMTP échoue. Aucune demande n'est perdue.
+
+Les identifiants SMTP vivent dans `/home/jasdwbp/config-smtp.php`, **au-dessus de
+`www/`** — le web ne peut pas les atteindre. Pour les (re)déposer :
+
+```bash
+bash tools/smtp-config.sh
 ```
 
-Les deux valent la même adresse parce que le **MX Plan gratuit limite le nombre
-de boîtes**. Si une seconde adresse est créée, remettre `site@jas-dw.be` en
-expéditeur : le tri s'en trouvera simplifié. L'adresse du visiteur est placée en
-`Reply-To`, la réponse part donc d'un clic.
+L'adresse du visiteur est placée en `Reply-To`, la réponse part donc d'un clic.
 
 Le formulaire fonctionne **sans JavaScript** : envoi natif puis page de
 confirmation générée par `contact.php`. `site.js` ne fait qu'éviter le
@@ -89,13 +91,19 @@ rechargement, et repasse à l'envoi natif s'il échoue.
 Protection anti-robot : champ masqué `site_web`. S'il est rempli, la demande est
 silencieusement ignorée.
 
-### Si mail() ne part pas
+### Authentification du domaine
 
-L'envoi par `mail()` n'est pas garanti sur l'offre gratuite. Tester tôt, avec un
-vrai destinataire, et vérifier les indésirables. En cas d'échec, le repli est le
-**SMTP authentifié** via la boîte incluse (`ssl0.ovh.net:465`), avec PHPMailer
-déposé dans `lib/` — meilleure délivrabilité, mais un mot de passe à protéger
-sur le serveur.
+La messagerie est chez **Google Workspace**, plus chez OVH :
+
+```
+MX      10 smtp.google.com
+SPF     v=spf1 include:_spf.google.com include:mx.ovh.com -all
+DKIM    google._domainkey — publié
+DMARC   v=DMARC1; p=none
+```
+
+Le flux du formulaire a été vérifié à **10/10 sur mail-tester** : SPF, DKIM et
+DMARC alignés. Le DMARC reste en `p=none` — il observe, il ne protège pas encore.
 
 ## Points à compléter avant la mise en production
 

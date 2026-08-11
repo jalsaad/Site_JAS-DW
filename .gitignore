@@ -13,3 +13,7 @@ Thumbs.db
 .env
 *.ftp
 ftp-*.txt
+
+# Configuration SMTP : contient le mot de passe d'application.
+# Elle vit sur le serveur, au-dessus de www/, jamais ici.
+config-smtp.php

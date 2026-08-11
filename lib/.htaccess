@@ -1,0 +1,3 @@
+# La bibliothèque n'a aucune raison d'être atteinte par le web.
+# Elle n'est chargée que par contact.php, côté serveur.
+Require all denied

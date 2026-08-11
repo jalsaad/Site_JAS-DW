@@ -3,8 +3,20 @@
  * JAS Digital Works — traitement du formulaire de contact.
  *
  * Hébergement OVH « Free hosting » (100 Mo, PHP 8.2, sans base de données).
- * Aucune dépendance, aucun service tiers : les demandes partent par mail()
- * vers la boîte incluse dans l'offre.
+ *
+ * Envoi en deux temps :
+ *  1. SMTP authentifié chez Google, si la configuration existe. Le message est
+ *     alors signé DKIM par Google avec d=jas-dw.be, donc aligné DMARC.
+ *  2. Repli sur mail() si le SMTP échoue ou n'est pas configuré. Cette voie
+ *     fonctionne mais n'est pas alignée : OVH réécrit l'expéditeur d'enveloppe
+ *     vers son propre domaine de rebond, et n'appose aucune signature.
+ *
+ * Aucune demande n'est perdue : le repli garantit la remise même si Google
+ * refuse la connexion.
+ *
+ * La configuration SMTP — mot de passe d'application compris — vit dans
+ * config-smtp.php, placé UN NIVEAU AU-DESSUS de www/. Le serveur web ne peut
+ * donc jamais le servir, quelle que soit l'URL demandée.
  *
  * Deux modes de réponse :
  *  - requête classique (JavaScript désactivé) → page de confirmation HTML ;
@@ -14,18 +26,14 @@
 declare(strict_types=1);
 
 // ── Configuration ────────────────────────────────────────────────────────
-// L'expéditeur DOIT être une adresse du domaine hébergé : OVH rejette les
-// envois usurpant un domaine tiers (gmail.com, etc.). L'adresse du visiteur
-// va dans Reply-To, ce qui permet de répondre d'un clic.
-//
-// Le MX Plan gratuit inclus avec le domaine ne fournit qu'un nombre limité de
-// boîtes. On utilise donc la même adresse en expéditeur et en destinataire :
-// c'est valide, et ça fonctionne avec une seule boîte créée. Si vous disposez
-// d'une seconde adresse, remettez EXPEDITEUR à 'site@jas-dw.be' — vos règles
-// de tri s'en trouveront simplifiées.
 const DESTINATAIRE = 'contact@jas-dw.be';
-const EXPEDITEUR   = 'contact@jas-dw.be';
+const EXPEDITEUR   = 'contact@jas-dw.be';   // doit appartenir au domaine hébergé
 const NOM_SITE     = 'Site JAS Digital Works';
+
+/** Chemin de la configuration SMTP, hors de la racine web. */
+function chemin_config_smtp(): string {
+    return dirname(__DIR__) . '/config-smtp.php';
+}
 
 // ── Utilitaires ──────────────────────────────────────────────────────────
 
@@ -63,6 +71,7 @@ function page_reponse(bool $succes, string $message): never {
 <title><?= $h($titre) ?> — JAS Digital Works</title>
 <meta name="robots" content="noindex">
 <link rel="icon" type="image/png" href="assets/mark.png">
+<meta name="theme-color" content="#07070A">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="assets/styles.css">
 </head>
@@ -119,6 +128,73 @@ function page_reponse(bool $succes, string $message): never {
     exit;
 }
 
+// ── Envoi ────────────────────────────────────────────────────────────────
+
+/**
+ * Envoi par SMTP authentifié. Rend true si le message est parti.
+ * Toute erreur est avalée : l'appelant se rabat sur mail().
+ */
+function envoyer_par_smtp(string $sujet, string $corps, string $nom, string $email): bool {
+    $config_php = chemin_config_smtp();
+    if (!is_readable($config_php)) {
+        return false;
+    }
+    $cfg = require $config_php;
+    if (!is_array($cfg) || empty($cfg['host']) || empty($cfg['user']) || empty($cfg['pass'])) {
+        return false;
+    }
+
+    $base = __DIR__ . '/lib/PHPMailer/';
+    foreach (['Exception.php', 'PHPMailer.php', 'SMTP.php'] as $fichier) {
+        if (!is_readable($base . $fichier)) {
+            return false;
+        }
+        require_once $base . $fichier;
+    }
+
+    try {
+        $mail = new PHPMailer\PHPMailer\PHPMailer(true);
+        $mail->isSMTP();
+        $mail->Host       = $cfg['host'];
+        $mail->Port       = (int)($cfg['port'] ?? 587);
+        $mail->SMTPAuth   = true;
+        $mail->Username   = $cfg['user'];
+        $mail->Password   = $cfg['pass'];
+        $mail->SMTPSecure = ($mail->Port === 465)
+            ? PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_SMTPS
+            : PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Timeout    = 15;
+        $mail->CharSet    = 'UTF-8';
+        $mail->Encoding   = '8bit';
+
+        $mail->setFrom($cfg['from'] ?? EXPEDITEUR, $cfg['from_name'] ?? NOM_SITE);
+        $mail->addAddress($cfg['to'] ?? DESTINATAIRE);
+        $mail->addReplyTo($email, $nom !== '' ? $nom : $email);
+
+        $mail->Subject = $sujet;
+        $mail->Body    = $corps;
+        $mail->isHTML(false);
+
+        return $mail->send();
+    } catch (Throwable $e) {
+        // Journalisation discrète : jamais affichée au visiteur.
+        error_log('contact.php — SMTP indisponible : ' . $e->getMessage());
+        return false;
+    }
+}
+
+/** Envoi par la fonction mail() de l'hébergement. Voie de repli. */
+function envoyer_par_mail(string $sujet, string $corps, string $nom, string $email): bool {
+    $entetes = implode("\n", [
+        'From: ' . NOM_SITE . ' <' . EXPEDITEUR . '>',
+        'Reply-To: ' . $nom . ' <' . $email . '>',
+        'Content-Type: text/plain; charset=UTF-8',
+        'Content-Transfer-Encoding: 8bit',
+        'X-Mailer: PHP/' . PHP_VERSION,
+    ]);
+    return @mail(DESTINATAIRE, $sujet, $corps, $entetes, '-f' . EXPEDITEUR);
+}
+
 // ── Traitement ───────────────────────────────────────────────────────────
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -154,7 +230,7 @@ $corps = implode("\n", [
     'Établissement   : ' . $etablissement,
     'Nom et fonction : ' . $nom,
     'E-mail          : ' . $email,
-    'Pack souhaité   : ' . $pack,
+    'Formule         : ' . $pack,
     '',
     '--- Message ---',
     $message !== '' ? $message : '(aucun message)',
@@ -163,16 +239,10 @@ $corps = implode("\n", [
     'Envoyé depuis ' . ($_SERVER['HTTP_HOST'] ?? 'jas-dw.be') . ' le ' . date('d/m/Y à H:i'),
 ]);
 
-$entetes = implode("\n", [
-    'From: ' . NOM_SITE . ' <' . EXPEDITEUR . '>',
-    'Reply-To: ' . $nom . ' <' . $email . '>',
-    'Content-Type: text/plain; charset=UTF-8',
-    'Content-Transfer-Encoding: 8bit',
-    'X-Mailer: PHP/' . PHP_VERSION,
-]);
+$sujet = 'Demande de démo — ' . $etablissement;
 
-$sujet  = 'Demande de démo — ' . $etablissement;
-$envoye = @mail(DESTINATAIRE, $sujet, $corps, $entetes, '-f' . EXPEDITEUR);
+$envoye = envoyer_par_smtp($sujet, $corps, $nom, $email)
+       || envoyer_par_mail($sujet, $corps, $nom, $email);
 
 if ($envoye) {
     repondre(true, 'Demande envoyée. Nous revenons vers vous sous 24 h ouvrées.');

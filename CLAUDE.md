@@ -26,8 +26,8 @@ Hébergement OVH **Free hosting**, inclus avec le nom de domaine :
 - **100 Mo d'espace disque**, datacentre eu-west-gra, cluster129.
 - **HTML, CSS, JavaScript et PHP 8.2.**
 - **Aucune base de données** — l'offre n'en propose pas.
-- **MX Plan gratuit** : nombre d'adresses e-mail limité. `contact.php` est donc
-  configuré avec la même adresse en expéditeur et en destinataire.
+- **La messagerie n'est plus chez OVH.** Les MX pointent vers Google Workspace
+  (`smtp.google.com`). Le MX Plan d'OVH n'est plus utilisé.
 - **Pas de CDN**, pas de SSH. Dépôt par **FTP** uniquement.
 - 3 emplacements de sites web, de quoi ajouter des démonstrations client.
 
@@ -54,9 +54,16 @@ assets/logo-inverse.png Lockup horizontal, lettrage blanc — fond sombre (défa
 assets/logo.png         Lockup horizontal, lettrage #545454 — fond clair
 assets/mark.png         Hexagone seul — favicon
 contact.php             Traitement du formulaire — le seul fichier dynamique
+lib/PHPMailer/          PHPMailer 7.1.1, déposé sans Composer — envoi SMTP
+lib/.htaccess           Interdit l'accès web à la bibliothèque
 .htaccess               HTTPS, URLs sans extension, cache, en-têtes sécurité
 design/                 Sources logo (LogoJAS_*.png) — NE PAS téléverser
+tools/                  Scripts de déploiement — NE PAS téléverser
 ```
+
+Hors du dépôt, sur le serveur : `/home/jasdwbp/config-smtp.php` contient les
+identifiants SMTP. Il est **un niveau au-dessus de `www/`**, donc inaccessible
+par le web. Modèle dans `tools/config-smtp.exemple.php`.
 
 Poids déployé : environ 250 Ko, hors photos.
 
@@ -148,17 +155,26 @@ de vraies photos plus vite qu'une direction claire.
 
 ## Formulaire de contact
 
-`contact.php` traite l'envoi via `mail()`, sans service tiers : les données des
-prospects restent chez OVH, ce qui est cohérent avec l'argument RGPD vendu aux
-établissements. Ne pas réintroduire de service externe sans en discuter.
+`contact.php` envoie en deux temps : **SMTP authentifié chez Google** d'abord,
+**repli sur `mail()`** si le SMTP échoue ou n'est pas configuré. Aucune demande
+n'est perdue.
+
+Pourquoi le SMTP : `mail()` fonctionne, mais OVH réécrit l'expéditeur d'enveloppe
+vers son propre domaine de rebond et n'appose aucune signature. Le message
+échoue donc à DMARC. Passé par Google, il est signé DKIM avec `d=jas-dw.be` et
+s'aligne — vérifié à 10/10 sur mail-tester.
 
 Points à préserver :
 
 - **L'expéditeur doit appartenir au domaine hébergé.** OVH rejette les envois qui
   usurpent un domaine tiers. L'adresse du visiteur va en `Reply-To`.
-- **Le MX Plan gratuit limite le nombre de boîtes** : `DESTINATAIRE` et
-  `EXPEDITEUR` valent tous deux `contact@jas-dw.be`. Si une seconde adresse est
-  créée, remettre `site@jas-dw.be` en expéditeur.
+- **Le mot de passe d'application ne doit jamais entrer dans le dépôt.** Il vit
+  dans `/home/jasdwbp/config-smtp.php`, permissions 600, hors de `www/`.
+  `config-smtp.php` est dans `.gitignore`.
+- **Google réécrit l'expéditeur** si l'adresse n'est pas un alias vérifié du
+  compte authentifié. `site@jas-dw.be` est actuellement réécrit en
+  `contact@jas-dw.be` : pour l'éviter, le déclarer dans Gmail → Paramètres →
+  Comptes → « Envoyer des e-mails en tant que ».
 - **Le formulaire fonctionne sans JavaScript** : envoi natif, puis page de
   confirmation rendue par `contact.php`. `site.js` ne fait qu'éviter le
   rechargement et repasse à l'envoi natif si la requête échoue. Dégradation
@@ -166,9 +182,21 @@ Points à préserver :
 - **Toute valeur est nettoyée des CRLF** avant d'entrer dans un en-tête mail.
 - **Piège à robots** : champ masqué `site_web`, réponse en succès silencieux.
 
-Si `mail()` s'avère bloqué, le repli est le SMTP authentifié sur
-`ssl0.ovh.net:465` avec la boîte incluse, PHPMailer déposé dans `lib/` sans
-Composer. Le mot de passe devra être placé hors de `www/` ou protégé.
+## Authentification du domaine
+
+```
+MX      10 smtp.google.com
+SPF     v=spf1 include:_spf.google.com include:mx.ovh.com -all
+DKIM    google._domainkey — publié
+DMARC   v=DMARC1; p=none; rua=mailto:contact@jas-dw.be
+```
+
+`include:mx.ovh.com` est conservé pour couvrir le repli `mail()`.
+
+**Le DMARC est encore en `p=none`** : il observe, il ne protège pas. Avant de
+durcir en `quarantine` puis `reject`, vérifier qu'aucun outil tiers n'écrit sous
+le domaine (Odoo, facturation, signature électronique) — ces flux seraient
+rejetés.
 
 ## Développement local
 
@@ -184,8 +212,20 @@ Contrôle visuel : Playwright, captures pleine page en 1440 px et 390 px.
 
 ## Déploiement
 
-FTP vers `www/`, contenu du dépôt à la racine. **Ne pas téléverser** `design/`,
-`CLAUDE.md`, `LISEZ-MOI.md`, `.gitignore`.
+```bash
+python3 tools/deploy-ftp.py --dry-run                    # liste sans envoyer
+python3 tools/deploy-ftp.py --credentials ~/.jasdw-ftp   # envoi réel
+```
+
+Le script tente **SFTP** (chiffré, port 22) et se rabat sur FTP. Il applique les
+exclusions et retire les liens symboliques d'OVH avant d'écrire — `www/index.html`
+en est un, pointant vers la page d'accueil par défaut.
+
+Identifiants : `bash tools/ftp-credentials.sh`, stocké dans `~/.jasdw-ftp`,
+jamais dans le dépôt.
+
+**Ne pas téléverser** `design/`, `tools/`, `CLAUDE.md`, `LISEZ-MOI.md`,
+`.gitignore` — le script s'en charge.
 Attention : beaucoup de clients FTP masquent `.htaccess` par défaut.
 Si le serveur renvoie une 500, retirer `.htaccess` — le site fonctionne sans lui,
 seules les URLs sans extension et les en-têtes de sécurité sont perdus.
