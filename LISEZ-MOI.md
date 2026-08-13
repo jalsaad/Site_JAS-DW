@@ -1,7 +1,7 @@
 # Site JAS Digital Works — site statique pour OVH Free hosting
 
 Site vitrine de l'agence, direction graphique « Studio » (fond sombre,
-typographie massive, dégradé de marque en accent). Six pages, aucune dépendance,
+typographie massive, dégradé de marque en accent). Sept pages, aucune dépendance,
 aucune étape de build.
 
 ## Périmètre
@@ -17,10 +17,10 @@ ne dit donc rien des besoins de ce dépôt-ci : l'hébergement gratuit lui suffi
 ## L'hébergement de ce site
 
 Offre OVH **Free hosting** : 100 Mo, **HTML/CSS/JavaScript et PHP 8.2**,
-**aucune base de données**, MX Plan à nombre d'adresses limité, pas de CDN,
-datacentre eu-west-gra. Dépôt par FTP.
+**aucune base de données**, pas de CDN, datacentre eu-west-gra. Dépôt par FTP.
+La messagerie n'est plus chez OVH : les MX pointent vers Google Workspace.
 
-Poids actuel : **environ 250 Ko**, soit 0,25 % du budget. Le reste est pour les
+Poids actuel : **environ 590 Ko**, soit 0,6 % du budget. Le reste est pour les
 photos.
 
 Ce qui reste impossible : tout ce qui suppose une base de données (blog éditable,
@@ -32,9 +32,10 @@ changer d'hébergement, pas contourner la contrainte.
 ```
 index.html              Accueil — héros, marquee, services, hébergement, formules
 tarifs.html             Offres — trois formules, tableau comparatif, FAQ
-fonctionnalites.html    Fonctionnalités — cinq blocs alternés
+fonctionnalites.html    Fonctionnalités — cinq blocs alternés, illustrations SVG
+projets.html            Nos projets — frise chronologique, logos partenaires
 contact.html            Contact — formulaire
-mentions-legales.html   Mentions légales — sommaire ancré, champs à compléter
+mentions-legales.html   Mentions légales — sommaire ancré
 404.html                Page d'erreur
 assets/styles.css       Tous les styles et les variables de charte
 assets/site.js          Menu mobile, marquee, envoi sans rechargement, année
@@ -42,25 +43,27 @@ assets/logo-inverse.png Logo fond sombre (utilisé partout sur le site)
 assets/logo.png         Logo fond clair (impression, documents)
 assets/mark.png         Hexagone seul — favicon
 contact.php             Traitement du formulaire (PHP 8.2, sans base de données)
+lib/PHPMailer/          PHPMailer 7.1.1, déposé sans Composer — envoi SMTP
 .htaccess               HTTPS, URLs sans extension, cache, en-têtes de sécurité
-design/                 Sources logo — ne pas téléverser
+design/                 Sources graphiques — ne pas téléverser
+tools/                  Scripts de déploiement — ne pas téléverser
 robots.txt / sitemap.xml
 ```
 
 ## Mise en ligne sur OVH
 
-1. Créer un accès FTP depuis l'espace client, ainsi que la boîte
-   `contact@jas-dw.be`.
-2. Se connecter en FTP et téléverser **le contenu** du dépôt dans `www/`
-   (pas le dossier lui-même). Ne pas envoyer `design/`, `CLAUDE.md`,
-   `LISEZ-MOI.md`, `.gitignore`.
-3. Vérifier que les fichiers cachés sont visibles dans le client FTP, sinon
-   `.htaccess` ne sera pas envoyé.
-4. Activer le certificat SSL gratuit (Let's Encrypt) depuis l'espace client,
-   puis attendre la propagation avant de tester la redirection HTTPS.
-5. Envoyer une demande de test depuis `contact.html` et vérifier la réception,
-   indésirables compris. C'est le seul point qui ne peut pas être validé hors
-   production.
+Le déploiement est outillé, il n'y a plus à manipuler un client FTP :
+
+```bash
+bash tools/ftp-credentials.sh                            # une seule fois
+python3 tools/deploy-ftp.py --dry-run                    # liste sans envoyer
+python3 tools/deploy-ftp.py --credentials ~/.jasdw-ftp   # envoi réel
+```
+
+Le script tente **SFTP** (chiffré, port 22) et se rabat sur FTP. Il applique les
+exclusions, retire les liens symboliques d'OVH — `www/index.html` en était un,
+pointant vers la page d'accueil par défaut — et empreinte `styles.css` et
+`site.js` d'un `?v=…` pour casser le cache d'un mois.
 
 Si `.htaccess` provoque une erreur 500 (module absent sur le cluster), le
 retirer : le site fonctionne sans lui, seules les URLs sans extension et les
@@ -99,28 +102,32 @@ La messagerie est chez **Google Workspace**, plus chez OVH :
 MX      10 smtp.google.com
 SPF     v=spf1 include:_spf.google.com include:mx.ovh.com -all
 DKIM    google._domainkey — publié
-DMARC   v=DMARC1; p=none
+DMARC   v=DMARC1; p=quarantine; pct=25
 ```
 
 Le flux du formulaire a été vérifié à **10/10 sur mail-tester** : SPF, DKIM et
-DMARC alignés. Le DMARC reste en `p=none` — il observe, il ne protège pas encore.
+DMARC alignés.
 
-## Points à compléter avant la mise en production
+Le DMARC est au premier palier : un message non conforme sur quatre part en
+quarantaine. Avant de monter à `pct=100` puis à `p=reject`, lire les rapports
+reçus sur `contact@` — via dmarcian.com ou postmarkapp.com/dmarc — pour vérifier
+qu'aucun outil tiers n'écrit sous le domaine sans être authentifié.
 
-Les coordonnées sont à **reprendre depuis le site actuel** (`jas-dw.be` et
-`jas-digital-works.odoo.com`). Elles n'ont pas pu l'être pendant la refonte :
-l'environnement d'exécution n'avait pas accès à ces deux domaines.
+## Ce qui reste ouvert
 
-| Fichier | À faire |
-|---|---|
-| `contact.html` | Rétablir le bloc téléphone (laissé en commentaire) avec le numéro réel ; compléter l'adresse postale |
-| `mentions-legales.html` | Tous les champs entre crochets : forme juridique, adresse, BCE/TVA, responsable de la publication, durée de conservation, mention HT/TTC |
-| `contact.php` | Créer la boîte, puis test d'envoi réel (indésirables compris) |
-| toutes les pages | Remplacer `https://jas-dw.be` dans `canonical` et `og:` si le domaine diffère |
-| `tarifs.html`, `index.html` | Vérifier que les prix correspondent à ceux du site actuel |
+Le site est complet et en production. Les coordonnées, les mentions légales et
+la grille tarifaire sont renseignées.
 
-La section témoignage a été retirée : elle contenait une citation fictive. À
-réintroduire seulement avec l'accord écrit d'un établissement cité nommément.
+Deux sujets restent à votre main :
+
+- **Durcir le DMARC**, par paliers, une fois les rapports lus (voir plus haut).
+- **Les témoignages.** La section d'origine contenait une citation fictive ; elle
+  a été retirée. À réintroduire seulement avec l'accord écrit d'un établissement
+  cité nommément.
+
+Aucune photographie d'élève n'est publiée, faute d'accord écrit des parents. La
+page Projets l'explique — c'est un argument commercial autant qu'une obligation
+pour un prestataire qui vend de la conformité à des écoles.
 
 ## Photos
 
