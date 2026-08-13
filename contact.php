@@ -73,7 +73,7 @@ function page_reponse(bool $succes, string $message): never {
 <link rel="icon" type="image/png" href="assets/mark.png">
 <meta name="theme-color" content="#07070A">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="assets/styles.css">
+<link rel="stylesheet" href="assets/styles.css?v=8d64fc62">
 </head>
 <body>
 
@@ -124,7 +124,7 @@ function page_reponse(bool $succes, string $message): never {
   <p class="footer-legal">© <span id="year">2026</span> JAS Digital Works — Frasnes-lez-Anvaing, Belgique.</p>
 </footer>
 
-<script src="assets/site.js"></script>
+<script src="assets/site.js?v=d84253e4"></script>
 </body>
 </html><?php
     exit;

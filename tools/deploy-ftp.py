@@ -26,6 +26,7 @@ from __future__ import annotations
 
 import argparse
 import ftplib
+import re
 import os
 import ssl
 import sys
@@ -52,6 +53,39 @@ def fichiers_a_envoyer() -> list[tuple[Path, str]]:
             continue
         sortie.append((chemin, rel.as_posix()))
     return sortie
+
+
+def empreinter_ressources() -> list[str]:
+    """Réécrit `styles.css?v=…` et `site.js?v=…` avec l'empreinte du fichier.
+
+    L'.htaccess demande un cache d'un mois sur la CSS et le JS. Sans cette
+    empreinte, un visiteur déjà venu garde l'ancienne feuille pendant trente
+    jours — et le HTML neuf s'affiche avec des styles périmés. Les images en
+    portent la trace la plus visible : privées de leurs règles, elles se
+    replient sur les attributs width/height et s'étirent.
+    """
+    import hashlib
+
+    versions = {}
+    for nom in ("styles.css", "site.js"):
+        chemin = RACINE / "assets" / nom
+        if chemin.exists():
+            versions[nom] = hashlib.sha256(chemin.read_bytes()).hexdigest()[:8]
+
+    touches = []
+    for cible in list(RACINE.glob("*.html")) + [RACINE / "contact.php"]:
+        if not cible.exists():
+            continue
+        avant = texte = cible.read_text(encoding="utf-8")
+        for nom, v in versions.items():
+            texte = re.sub(rf"(assets/{re.escape(nom)})(\?v=[0-9a-f]+)?", rf"\1?v={v}", texte)
+        if texte != avant:
+            cible.write_text(texte, encoding="utf-8")
+            touches.append(cible.name)
+    if versions:
+        print("Empreintes : " + ", ".join(f"{n}?v={v}" for n, v in versions.items()))
+        print(f"  {len(touches)} fichier(s) mis à jour" if touches else "  déjà à jour")
+    return touches
 
 
 def identifiants(chemin_fichier: str | None) -> tuple[str, str, str]:
@@ -179,11 +213,16 @@ def main() -> None:
     ap.add_argument("--dry-run", action="store_true", help="liste ce qui partirait, sans se connecter")
     ap.add_argument("--credentials", metavar="FICHIER", help="fichier host=/user=/pass= hors du dépôt")
     ap.add_argument("--remote-dir", default="www", help="dossier distant (défaut : www)")
+    ap.add_argument("--no-bump", action="store_true",
+                    help="ne pas recalculer l'empreinte des ressources avant l'envoi")
     ap.add_argument("--force-ftp", action="store_true",
                     help="ignore SFTP et passe directement par FTP")
     ap.add_argument("--no-tls", action="store_true",
                     help="FTP en clair : le mot de passe circule en clair, à n'utiliser que si le serveur refuse AUTH TLS")
     args = ap.parse_args()
+
+    if not args.no_bump:
+        empreinter_ressources()
 
     fichiers = fichiers_a_envoyer()
     total = sum(f.stat().st_size for f, _ in fichiers)
