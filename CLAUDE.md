@@ -221,6 +221,26 @@ page de réponse sont vérifiables).
 
 Contrôle visuel : Playwright, captures pleine page en 1440 px et 390 px.
 
+## Cache — le piège à ne pas rouvrir
+
+Deux régimes dans `.htaccess`, selon que l'URL change avec le fichier :
+
+- **CSS et JS** sont empreintés par le script de déploiement (`?v=…`), donc
+  gardés un an en `immutable`.
+- **Le HTML** garde toujours la même URL : il est en `no-cache,
+  must-revalidate`. Sans cela, une page modifiée continue d'être servie depuis
+  le navigateur du visiteur, avec les anciennes références de styles et de
+  script — ce qui s'est produit deux fois : images étirées, puis bascule de
+  thème absente des pages internes.
+
+OVH ne renvoie ni `ETag` ni `Last-Modified` sur ces URL : la revalidation ne
+peut donc pas répondre 304, chaque visite retélécharge le HTML. Quelques
+kilo-octets compressés, sans commune mesure avec le risque d'une page périmée.
+
+**Les images ne sont pas empreintées** et sont gardées un mois. Remplacer un
+logo sans changer son nom demande donc de la patience, ou un nom de fichier
+différent.
+
 ## Déploiement
 
 ```bash
