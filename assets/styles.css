@@ -116,6 +116,9 @@ ul { margin: 0 0 var(--s3); padding-left: 20px; }
 
 .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--s8); }
 .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s6); }
+/* Quatre formules : la rangée passe à deux colonnes avant de s'empiler,
+   sans quoi les cartes deviennent trop étroites pour leur liste. */
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s4); }
 
 /* En-tête de section : titre à gauche, chapô à droite */
 .sec-head {
@@ -333,6 +336,15 @@ ul { margin: 0 0 var(--s3); padding-left: 20px; }
 .pack-list li { display: flex; gap: 11px; }
 .pack-list li::before { content: "→"; color: var(--violet-lo); flex: none; }
 .pack .btn { margin-top: var(--s2); }
+
+/* Dans une rangée de quatre, la carte perd un tiers de sa largeur :
+   on resserre le prix, le titre et la liste pour éviter les veuves. */
+.grid-4 .pack { padding: var(--s6); gap: var(--s3); }
+.grid-4 .pack h3 { font-size: 19px; }
+.grid-4 .pack-price { font-size: clamp(28px, 2.4vw, 34px); }
+.grid-4 .pack-price small { display: block; font-size: 12.5px; margin-top: 2px; }
+.grid-4 .pack-list { font-size: 13px; gap: 9px; }
+.grid-4 .pack .tag-accent { left: var(--s6); }
 /* `vertical-align: super` décolle trop le renvoi du texte : on le place
    à la main, et `line-height: 0` l'empêche d'élargir la ligne. */
 .pack sup, .price-notes sup {
@@ -555,6 +567,10 @@ textarea.input { min-height: 120px; resize: vertical; }
 
 /* ── Adaptation mobile ─────────────────────────────────────────────── */
 
+@media (max-width: 1240px) {
+  .grid-4 { grid-template-columns: repeat(2, 1fr); gap: var(--s6); }
+}
+
 @media (max-width: 1000px) {
   :root { --gut: 22px; }
 
@@ -576,7 +592,7 @@ textarea.input { min-height: 120px; resize: vertical; }
   .hero { padding: var(--s10) 0 var(--s8); }
   .stats { gap: var(--s8); margin-top: var(--s10); }
 
-  .grid-3, .grid-2, .feature, .contact-grid { grid-template-columns: 1fr; gap: var(--s6); }
+  .grid-3, .grid-2, .grid-4, .feature, .contact-grid { grid-template-columns: 1fr; gap: var(--s6); }
   .feature { gap: var(--s8); }
   .feature-reverse .feature-media { order: 0; }
 

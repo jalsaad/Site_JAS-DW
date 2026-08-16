@@ -145,7 +145,12 @@
   /* Pré-sélection du pack depuis les liens « Choisir … » (contact.html?pack=interactif) */
   var wanted = new URLSearchParams(window.location.search).get('pack');
   if (wanted) {
-    var index = { essentiel: 0, interactif: 1, integral: 2, 'intégral': 2 }[wanted.toLowerCase()];
+    var index = {
+      'initial': 0,
+      'integral': 1, 'intégral': 1,
+      'integral-plus': 2, 'integral+': 2,
+      'integral-plus-plus': 3, 'integral++': 3
+    }[wanted.toLowerCase()];
     var radios = form.querySelectorAll('input[name="pack"]');
     if (index !== undefined && radios[index]) radios[index].checked = true;
   }
