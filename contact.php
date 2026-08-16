@@ -73,7 +73,7 @@ function page_reponse(bool $succes, string $message): never {
 <link rel="icon" type="image/png" href="assets/mark.png">
 <meta name="theme-color" content="#07070A">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="assets/styles.css?v=8058e858">
+<link rel="stylesheet" href="assets/styles.css?v=6b5ec5c6">
 </head>
 <body>
 
