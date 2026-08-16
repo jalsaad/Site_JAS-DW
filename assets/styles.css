@@ -62,19 +62,6 @@
   --grain:    .22;
 }
 
-/* Bascule douce entre les deux thèmes. La classe n'est posée que le temps
-   du basculement, par site.js, puis retirée : hors de ce moment, aucune
-   transition ne pèse sur la page. */
-.theme-transition, .theme-transition *,
-.theme-transition *::before, .theme-transition *::after {
-  transition: background-color .32s ease, color .32s ease,
-              border-color .32s ease, fill .32s ease,
-              stroke .32s ease, opacity .32s ease !important;
-}
-@media (prefers-reduced-motion: reduce) {
-  .theme-transition, .theme-transition *,
-  .theme-transition *::before, .theme-transition *::after { transition: none !important; }
-}
 
 *, *::before, *::after { box-sizing: border-box; }
 

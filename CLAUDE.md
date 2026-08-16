@@ -101,8 +101,9 @@ source unique. Ne pas coder de valeur en dur ailleurs.
   mentions légales. Aucun cookie, aucun traceur, rien qui parte vers un serveur —
   l'argument commercial reste entier. Ne rien y ajouter d'autre.
 - **Deux thèmes.** Le sombre est l'identité de la marque et le défaut ; le clair
-  s'active par `data-theme="light"` sur `<html>`. Toute couleur doit passer par
-  un token de `:root` : une valeur écrite en dur ne suivra pas la bascule. Les
+  s'active par `data-theme="light"` sur `<html>`. La bascule est instantanée, sans
+  transition. Toute couleur doit passer par un token de `:root` : une valeur
+  écrite en dur ne suivra pas la bascule. Les
   illustrations SVG en ligne utilisent elles aussi `var(--…)`, sauf les arrêts
   de dégradé de marque, qui ne dépendent pas du thème.
 - **Le logo existe en deux versions** dans chaque en-tête et pied de page,

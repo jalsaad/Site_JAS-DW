@@ -35,13 +35,7 @@
   if (basculer) {
     basculer.addEventListener('click', function () {
       var vers = racine.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
-
-      /* Transition posée le temps du basculement seulement : hors de ce
-         moment, aucune règle de transition ne pèse sur la page. */
-      racine.classList.add('theme-transition');
       appliquer(vers);
-      window.setTimeout(function () { racine.classList.remove('theme-transition'); }, 360);
-
       try { window.localStorage.setItem(CLE, vers); } catch (e) { /* ignoré */ }
     });
   }
