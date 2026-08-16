@@ -204,6 +204,18 @@ ul { margin: 0 0 var(--s3); padding-left: 20px; }
 
 .btn-block { width: 100%; }
 
+/* Le « + » des formules supérieures, en pastille au dégradé de marque.
+   Dimensions en `em` : la pastille suit l'échelle du texte qui la porte,
+   qu'elle soit dans un titre de carte, un bouton ou un en-tête de tableau. */
+.plus {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: .82em; height: .82em; margin-left: .1em;
+  border-radius: 50%; background: var(--grad);
+  color: #fff; font-size: .74em; font-weight: 800; line-height: 1;
+  vertical-align: .08em; letter-spacing: 0;
+}
+.plus + .plus { margin-left: .08em; }
+
 /* ── Étiquettes ────────────────────────────────────────────────────── */
 
 .tag {
