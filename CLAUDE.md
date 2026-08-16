@@ -94,7 +94,16 @@ source unique. Ne pas coder de valeur en dur ailleurs.
 
 ## Conventions de code
 
-- JS en ES5 prudent, sans dépendance, sans `import`. Un seul fichier.
+- JS en ES5 prudent, sans dépendance, sans `import`. Un seul fichier — à une
+  exception près, ci-dessous.
+- **Une amorce de thème en ligne dans le `<head>` de chaque page**, juste après
+  `<meta name="theme-color">`. `site.js` est chargé en fin de `<body>` : sans
+  cette amorce, le navigateur peint la page en sombre (le défaut) avant de la
+  repasser en clair, d'où un clignotement à chaque changement de page. Elle
+  doit rester **synchrone** et **avant la feuille de styles** — un `defer`, un
+  `async` ou un déplacement plus bas rouvrent le défaut. C'est la seule
+  exception à la règle « un seul fichier de script », et elle se duplique donc
+  sur les 6 pages plus `contact.php`.
 - **Une seule clé de stockage local**, `jasdw-theme`, qui retient le choix
   clair/sombre. C'est la seule exception à la règle « aucun stockage » : sans
   elle, le bouton oublierait son état à chaque page. Elle est déclarée dans les

@@ -9,6 +9,13 @@
 <link rel="canonical" href="https://jas-dw.be/mentions-legales">
 <link rel="icon" type="image/png" href="assets/mark.png">
 <meta name="theme-color" content="#07070A">
+<script>
+/* Le thème enregistré doit être posé avant le premier rendu. site.js est en
+   fin de body : sans ce bloc, la page s'affiche en sombre le temps qu'il
+   s'exécute, ce qui produit un clignotement à chaque changement de page.
+   C'est la seule exception à la règle « un seul fichier de script ». */
+(function(){try{if(localStorage.getItem('jasdw-theme')==='light'){document.documentElement.setAttribute('data-theme','light');var m=document.querySelector('meta[name=theme-color]');if(m)m.setAttribute('content','#FAFAFC');}}catch(e){}})();
+</script>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="assets/styles.css?v=6b5ec5c6">
 </head>
@@ -179,6 +186,6 @@
   <p class="footer-legal">© <span id="year">2026</span> JAS Digital Works — Frasnes-lez-Anvaing, Belgique.</p>
 </footer>
 
-<script src="assets/site.js?v=c417838a"></script>
+<script src="assets/site.js?v=71fd062e"></script>
 </body>
 </html>

@@ -20,6 +20,8 @@
   var appliquer = function (theme) {
     if (theme === 'light') racine.setAttribute('data-theme', 'light');
     else racine.removeAttribute('data-theme');
+    var m = document.querySelector('meta[name="theme-color"]');
+    if (m) m.setAttribute('content', theme === 'light' ? '#FAFAFC' : '#07070A');
     var b = document.querySelector('.theme-toggle');
     if (b) {
       b.setAttribute('aria-pressed', theme === 'light' ? 'true' : 'false');
