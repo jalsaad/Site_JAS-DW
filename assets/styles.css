@@ -31,8 +31,49 @@
   --s1: 4px;  --s2: 8px;  --s3: 12px; --s4: 16px;
   --s6: 24px; --s8: 32px; --s10: 44px; --s12: 64px;
 
+  /* Toujours claire, quel que soit le thème : les logos partenaires ont
+     un lettrage foncé et ne survivent pas sur une pastille sombre. */
+  --chip:     #FFFFFF;
+
+  /* Halo du héros et grain : réglés par thème plutôt qu'en dur. */
+  --halo:     34%;
+  --grain:    .5;
+
   --maxw: 1320px;
   --gut: 40px;
+}
+
+/* ── Thème clair ────────────────────────────────────────────────────────
+   Le sombre reste l'identité de la marque et le défaut. Le clair n'est pas
+   une inversion : ses neutres sont légèrement biaisés vers le violet de la
+   charte, et l'accent est assombri pour rester lisible sur fond pâle.
+   Contrastes vérifiés : texte 17,6:1, secondaire 6,5:1, accent 7,1:1. */
+:root[data-theme="light"] {
+  --ink:      #FAFAFC;
+  --ink-2:    #F1F1F6;
+  --ink-3:    #E7E7F0;
+  --paper:    #14141B;
+  --muted:    #5A5A6E;
+  --line:     #E0E0E9;
+  --line-2:   #C6C6D5;
+  --violet-lo:#6B21D9;   /* accent assombri : 7,1:1 sur le fond clair */
+  --cyan:     #0E7C93;   /* même chose pour l'anneau de focus */
+  --halo:     18%;
+  --grain:    .22;
+}
+
+/* Bascule douce entre les deux thèmes. La classe n'est posée que le temps
+   du basculement, par site.js, puis retirée : hors de ce moment, aucune
+   transition ne pèse sur la page. */
+.theme-transition, .theme-transition *,
+.theme-transition *::before, .theme-transition *::after {
+  transition: background-color .32s ease, color .32s ease,
+              border-color .32s ease, fill .32s ease,
+              stroke .32s ease, opacity .32s ease !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .theme-transition, .theme-transition *,
+  .theme-transition *::before, .theme-transition *::after { transition: none !important; }
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -63,7 +104,7 @@ body::after {
   content: "";
   position: fixed; inset: 0;
   pointer-events: none; z-index: 99;
-  opacity: .5; mix-blend-mode: overlay;
+  opacity: var(--grain); mix-blend-mode: overlay;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.42'/%3E%3C/svg%3E");
 }
 
@@ -185,6 +226,28 @@ ul { margin: 0 0 var(--s3); padding-left: 20px; }
 .nav-toggle[aria-expanded="true"] span::before { top: 0; transform: rotate(45deg); }
 .nav-toggle[aria-expanded="true"] span::after  { top: 0; transform: rotate(-45deg); }
 
+/* ── Bascule clair / sombre ─────────────────────────────────────────────
+   L'icône affichée est celle du mode vers lequel on va, pas du mode
+   courant : un soleil quand on est dans le sombre, une lune sinon. */
+.theme-toggle {
+  flex: none; width: 42px; height: 42px; padding: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: transparent; border: 1px solid var(--line-2); border-radius: 999px;
+  color: var(--muted); cursor: pointer;
+  transition: color .2s ease, border-color .2s ease, transform .2s ease;
+}
+.theme-toggle:hover { color: var(--paper); border-color: var(--paper); }
+.theme-toggle:active { transform: scale(.94); }
+.theme-toggle svg { width: 18px; height: 18px; display: block; }
+.theme-toggle .ico-lune { display: none; }
+:root[data-theme="light"] .theme-toggle .ico-soleil { display: none; }
+:root[data-theme="light"] .theme-toggle .ico-lune { display: block; }
+
+/* ── Marque : le lettrage doit contraster avec le fond du thème ──────── */
+.logo-clair { display: none; }
+:root[data-theme="light"] .logo-sombre { display: none; }
+:root[data-theme="light"] .logo-clair { display: block; }
+
 /* ── Boutons ───────────────────────────────────────────────────────── */
 
 .btn {
@@ -232,7 +295,7 @@ ul { margin: 0 0 var(--s3); padding-left: 20px; }
 .hero::before {
   content: ""; position: absolute; top: -380px; left: 50%;
   transform: translateX(-50%); width: 1100px; height: 700px; border-radius: 50%;
-  background: radial-gradient(closest-side, color-mix(in srgb, var(--violet) 34%, transparent), transparent 70%);
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--violet) var(--halo), transparent), transparent 70%);
   filter: blur(40px); pointer-events: none;
 }
 /* Trame hexagonale : sous le halo, sous le texte, sans interaction.
@@ -662,7 +725,7 @@ textarea.input { min-height: 120px; resize: vertical; }
 .tl-logo {
   display: flex; align-items: center; width: fit-content;
   margin: var(--s6) 0 0;
-  background: var(--paper); border-radius: 14px; padding: 14px 20px;
+  background: var(--chip); border-radius: 14px; padding: 14px 20px;
 }
 .tl-logo img { display: block; height: 52px; width: auto; max-width: 100%; }
 /* Un logo presque carré paraît deux fois plus petit qu'un logo large à

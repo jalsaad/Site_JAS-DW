@@ -73,7 +73,7 @@ function page_reponse(bool $succes, string $message): never {
 <link rel="icon" type="image/png" href="assets/mark.png">
 <meta name="theme-color" content="#07070A">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="assets/styles.css?v=dccb4e4a">
+<link rel="stylesheet" href="assets/styles.css?v=951d089f">
 </head>
 <body>
 
@@ -82,7 +82,8 @@ function page_reponse(bool $succes, string $message): never {
 <header class="site-header">
   <nav class="nav" aria-label="Navigation principale">
     <a class="nav-logo" href="index.html" aria-label="JAS Digital Works — accueil">
-      <img src="assets/logo-inverse.png" alt="JAS Digital Works" width="480" height="94">
+      <img class="logo-sombre" src="assets/logo-inverse.png" alt="JAS Digital Works" width="480" height="94">
+      <img class="logo-clair" src="assets/logo.png" alt="JAS Digital Works" width="480" height="94">
     </a>
     <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-links" aria-label="Ouvrir le menu"><span></span></button>
     <div class="nav-links" id="nav-links">
@@ -93,6 +94,16 @@ function page_reponse(bool $succes, string $message): never {
       <a href="contact.html">Contact</a>
       <a class="btn btn-primary" href="contact.html">Demander une démo</a>
     </div>
+    <button class="theme-toggle" type="button" aria-pressed="false"
+            aria-label="Basculer entre le mode sombre et le mode clair">
+      <svg class="ico-soleil" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="4.2"/>
+        <path d="M12 2.6v2.2M12 19.2v2.2M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2.6 12h2.2M19.2 12h2.2M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6"/>
+      </svg>
+      <svg class="ico-lune" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M20.5 14.3A8.6 8.6 0 0 1 9.7 3.5a8.6 8.6 0 1 0 10.8 10.8Z"/>
+      </svg>
+    </button>
   </nav>
 </header>
 
@@ -111,7 +122,8 @@ function page_reponse(bool $succes, string $message): never {
 <footer class="site-footer">
   <div class="footer-inner">
     <a href="index.html" aria-label="JAS Digital Works — accueil">
-      <img src="assets/logo-inverse.png" alt="JAS Digital Works" width="480" height="94">
+      <img class="logo-sombre" src="assets/logo-inverse.png" alt="JAS Digital Works" width="480" height="94">
+      <img class="logo-clair" src="assets/logo.png" alt="JAS Digital Works" width="480" height="94">
     </a>
     <nav class="footer-links" aria-label="Liens de pied de page">
       <a href="tarifs.html">Offres</a>
@@ -124,7 +136,7 @@ function page_reponse(bool $succes, string $message): never {
   <p class="footer-legal">© <span id="year">2026</span> JAS Digital Works — Frasnes-lez-Anvaing, Belgique.</p>
 </footer>
 
-<script src="assets/site.js?v=246a786c"></script>
+<script src="assets/site.js?v=40c850e5"></script>
 </body>
 </html><?php
     exit;

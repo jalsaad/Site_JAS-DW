@@ -8,6 +8,44 @@
 (function () {
   'use strict';
 
+  /* — Thème clair / sombre —
+     Le sombre est l'identité de la marque et reste le défaut. Le choix du
+     visiteur est conservé dans localStorage : sans lui, le bouton oublierait
+     son état à chaque page. C'est une préférence d'affichage, pas un
+     traceur — aucune donnée personnelle, rien qui parte vers un serveur.
+     Les mentions légales le disent explicitement. */
+  var CLE = 'jasdw-theme';
+  var racine = document.documentElement;
+
+  var appliquer = function (theme) {
+    if (theme === 'light') racine.setAttribute('data-theme', 'light');
+    else racine.removeAttribute('data-theme');
+    var b = document.querySelector('.theme-toggle');
+    if (b) {
+      b.setAttribute('aria-pressed', theme === 'light' ? 'true' : 'false');
+      b.setAttribute('title', theme === 'light' ? 'Passer en mode sombre' : 'Passer en mode clair');
+    }
+  };
+
+  var lu = null;
+  try { lu = window.localStorage.getItem(CLE); } catch (e) { /* navigation privée */ }
+  appliquer(lu === 'light' ? 'light' : 'dark');
+
+  var basculer = document.querySelector('.theme-toggle');
+  if (basculer) {
+    basculer.addEventListener('click', function () {
+      var vers = racine.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+
+      /* Transition posée le temps du basculement seulement : hors de ce
+         moment, aucune règle de transition ne pèse sur la page. */
+      racine.classList.add('theme-transition');
+      appliquer(vers);
+      window.setTimeout(function () { racine.classList.remove('theme-transition'); }, 360);
+
+      try { window.localStorage.setItem(CLE, vers); } catch (e) { /* ignoré */ }
+    });
+  }
+
   /* — Menu mobile — */
   var toggle = document.querySelector('.nav-toggle');
   var links = document.getElementById('nav-links');
@@ -184,6 +222,10 @@
       ctx.clearRect(0, 0, l, h);
       ctx.lineWidth = 1;
 
+      /* Couleur de veille lue sur le thème courant, pour que la trame
+         suive la bascule clair / sombre sans être redessinée deux fois. */
+      var veille = getComputedStyle(racine).getPropertyValue('--line').trim() || '#22222E';
+
       /* L'onde décrit une ellipse lente, plus large que haute. */
       var ox = l * (.5 + .42 * Math.cos(t * .16));
       var oy = h * (.5 + .34 * Math.sin(t * .21));
@@ -194,7 +236,7 @@
         var dx = c.x - ox, dy = c.y - oy;
         var d = Math.sqrt(dx * dx + dy * dy);
         if (d > portee) {
-          ctx.strokeStyle = 'rgba(34,34,46,.55)';        /* --line, en veille */
+          ctx.strokeStyle = veille;
         } else {
           var f = 1 - d / portee;                        /* 0 au bord, 1 au centre */
           ctx.strokeStyle = 'rgba(' + teinte(Math.min(1, d / portee + t * .05 % 1)) +

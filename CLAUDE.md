@@ -95,8 +95,19 @@ source unique. Ne pas coder de valeur en dur ailleurs.
 ## Conventions de code
 
 - JS en ES5 prudent, sans dépendance, sans `import`. Un seul fichier.
-- Pas de `localStorage` ni de cookie : le site se veut sans traceur, c'est un
-  argument commercial assumé dans les mentions légales.
+- **Une seule clé de stockage local**, `jasdw-theme`, qui retient le choix
+  clair/sombre. C'est la seule exception à la règle « aucun stockage » : sans
+  elle, le bouton oublierait son état à chaque page. Elle est déclarée dans les
+  mentions légales. Aucun cookie, aucun traceur, rien qui parte vers un serveur —
+  l'argument commercial reste entier. Ne rien y ajouter d'autre.
+- **Deux thèmes.** Le sombre est l'identité de la marque et le défaut ; le clair
+  s'active par `data-theme="light"` sur `<html>`. Toute couleur doit passer par
+  un token de `:root` : une valeur écrite en dur ne suivra pas la bascule. Les
+  illustrations SVG en ligne utilisent elles aussi `var(--…)`, sauf les arrêts
+  de dégradé de marque, qui ne dépendent pas du thème.
+- **Le logo existe en deux versions** dans chaque en-tête et pied de page,
+  `.logo-sombre` et `.logo-clair`, l'une masquée par le thème. Le lettrage blanc
+  disparaîtrait sur fond clair.
 - CSS : attention aux spécificités. Piège déjà rencontré — `.nav-links a`
   (0,1,1) écrase `.btn` (0,1,0) et casse le bouton du header. Les sélecteurs de
   navigation utilisent donc `:not(.btn)`. Vérifier ce genre de collision avant
